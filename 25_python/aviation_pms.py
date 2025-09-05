@@ -1,9 +1,14 @@
+#Prediction and Maintenance Scheduling for Aviation Components using Machine Learning
+# This script simulates sensor data from aviation components, trains a machine learning model to predict failures, and demonstrates how to use the model for predictions.
+
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler
+
 
 # 1. Simulate sensor data for aviation components
 def generate_sample_data(n_samples=1000):
@@ -14,6 +19,8 @@ def generate_sample_data(n_samples=1000):
         'pressure': np.random.normal(30, 5, n_samples),
         'runtime_hours': np.random.normal(500, 100, n_samples),
         'error_count': np.random.poisson(2, n_samples),
+        "product_id": np.random.randint(1000, 1100, n_samples),
+        "supplier historical data": np.random.randint(0, 2, n_samples)
     }
     # Simulate failure: higher temp, vibration, error_count increase failure chance
     failure_prob = (
@@ -21,7 +28,9 @@ def generate_sample_data(n_samples=1000):
         0.3 * (data['vibration'] > 0.6) +
         0.2 * (data['error_count'] > 3) +
         0.1 * (data['pressure'] < 25) +
-        0.2 * (data['runtime_hours'] > 600)
+        0.2 * (data['runtime_hours'] > 600) +
+        0.4 * (data['product_id'] == 1001) +
+        0.3 * (data['supplier historical data'] == 1)
     )
     data['failure'] = (np.random.rand(n_samples) < failure_prob).astype(int)
     return pd.DataFrame(data)
@@ -61,7 +70,25 @@ if __name__ == "__main__":
         'vibration': [0.7],
         'pressure': [28],
         'runtime_hours': [650],
-        'error_count': [5]
+        'error_count': [5],
+        'product_id': [1001],
+        'supplier historical data': [1]
     })
     prediction = predict_failure(model, scaler, new_sensor_data)
-    print(f"Predicted failure (1=failure, 0=no failure): {prediction[0]}")
+    if prediction >= 0.5:
+        prediction = 1
+    else: prediction = 0
+    if prediction == 1:
+        print("Warning: Component is likely to fail soon. Schedule maintenance.")
+    else:
+        print("Component is operating normally.")
+    # Schedule maintenance (simple demonstration)
+    print("Enter date of maintenance (YYYY-MM-DD):")
+    maintenance_date = input()
+    print(f"Maintenance scheduled for {maintenance_date}.")
+    print("Notify maintenance team.")
+    send_email = input("Enter 'y' to send email notification to maintenance team: ")
+    if send_email.lower() != 'y':
+        print("Enter email address:")
+        email_address = input()
+        print(f"Sending email to {email_address} about scheduled maintenance on {maintenance_date}.")
