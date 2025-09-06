@@ -26,8 +26,8 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          path: hydrogen_1/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('hydrogen_1/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
